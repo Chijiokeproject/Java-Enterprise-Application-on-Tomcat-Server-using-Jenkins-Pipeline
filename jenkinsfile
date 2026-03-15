@@ -22,7 +22,7 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                sshagent(['jenkins-key']) {
+                sshagent(['Jenkins-key']) {
                     
                     sh """
                     scp -o StrictHostKeyChecking=no target/*.war ubuntu@${TOMCAT_PUBLIC_IP}:/opt/tomcat/webapps/
