@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    environment {
+        TOMCAT_PUBLIC_IP = '34.240.248.67'
+    }
+
+    stages {
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+
+            post {
+                success {
+                    echo 'Archiving the artifacts'
+                    archiveArtifacts artifacts: '**/target/*.war'
+                }
+            }
+        }
+
+        stage('Deploy to Tomcat') {
+            steps {
+                sshagent(['jenkins-key']) {
+                    
+                    sh """
+                    scp -o StrictHostKeyChecking=no target/*.war ubuntu@${TOMCAT_PUBLIC_IP}:/opt/tomcat/webapps/
+                    """
+
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ubuntu@${TOMCAT_PUBLIC_IP} \
+                    'rm -rf /opt/tomcat/webapps/ROOT* && mv /opt/tomcat/webapps/*.war /opt/tomcat/webapps/ROOT.war'
+                    """
+                }
+            }
+        }
+    }
+}
