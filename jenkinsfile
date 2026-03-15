@@ -9,28 +9,42 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+
+                // move into directory containing pom.xml if needed
+                // remove "dir('app')" if pom.xml is in repo root
+                dir('.') {
+                    sh '''
+                    echo "Workspace:"
+                    pwd
+                    echo "Files:"
+                    ls -la
+                    mvn clean package
+                    '''
+                }
             }
 
             post {
                 success {
                     echo 'Archiving the artifacts'
-                    archiveArtifacts artifacts: '**/target/*.war'
+                    archiveArtifacts artifacts: 'target/*.war'
                 }
             }
         }
 
-        stage('Deploy to Tomcat') {
+        stage("Deploy to Tomcat") {
             steps {
                 sshagent(['Jenkins-key']) {
-                    
+
                     sh """
-                    scp -o StrictHostKeyChecking=no target/*.war ubuntu@${TOMCAT_PUBLIC_IP}:/opt/tomcat/webapps/
+                    scp -o StrictHostKeyChecking=no target/*.war \
+                    ubuntu@${TOMCAT_PUBLIC_IP}:/opt/tomcat/webapps/
                     """
 
                     sh """
-                    ssh -o StrictHostKeyChecking=no ubuntu@${TOMCAT_PUBLIC_IP} \
-                    'rm -rf /opt/tomcat/webapps/ROOT* && mv /opt/tomcat/webapps/*.war /opt/tomcat/webapps/ROOT.war'
+                    ssh -o StrictHostKeyChecking=no ubuntu@${TOMCAT_PUBLIC_IP} '
+                    rm -rf /opt/tomcat/webapps/ROOT* &&
+                    mv /opt/tomcat/webapps/*.war /opt/tomcat/webapps/ROOT.war
+                    '
                     """
                 }
             }
