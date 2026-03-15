@@ -1,0 +1,46 @@
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform lock file (optional)
+.terraform.lock.hcl
+
+# Environment variables
+.env
+.env.*
+
+# AWS credentials
+.aws/
+
+# SSH keys
+*.pem
+*.key
+
+# Logs
+*.log
+
+# Mac system files
+.DS_Store
+
+# Linux temporary files
+*~
+
+# IDE files
+.vscode/
+.idea/
+
+# Jenkins workspace artifacts
+workspace/
+
+# Node modules (if using frontend)
+node_modules/
+
+# Python cache (if scripts exist)
+__pycache__/
+*.pyc
